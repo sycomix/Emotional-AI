@@ -8,8 +8,7 @@ def load_image(image_path, grayscale=False, target_size=None):
     return image.img_to_array(pil_image)
 
 def load_detection_model(model_path):
-    detection_model = cv2.CascadeClassifier(model_path)
-    return detection_model
+    return cv2.CascadeClassifier(model_path)
 
 def detect_faces(detection_model, gray_image_array):
     return detection_model.detectMultiScale(gray_image_array, 1.3, 5)

@@ -29,17 +29,8 @@ import scipy.io.wavfile as wav
 def power_to_db(S, ref=1.0, amin=1e-10, top_db=80.0):
     S = np.asarray(S)
 
-    if np.issubdtype(S.dtype, np.complexfloating):
-        magnitude = np.abs(S)
-    else:
-        magnitude = S
-
-    if six.callable(ref):
-        # User supplied a function to calculate reference power
-        ref_value = ref(magnitude)
-    else:
-        ref_value = np.abs(ref)
-
+    magnitude = np.abs(S) if np.issubdtype(S.dtype, np.complexfloating) else S
+    ref_value = ref(magnitude) if six.callable(ref) else np.abs(ref)
     log_spec = 10.0 * np.log10(np.maximum(amin, magnitude))
     log_spec -= 10.0 * np.log10(np.maximum(amin, ref_value))
 
@@ -212,16 +203,14 @@ def stEnergyEntropy(frame, numOfShortBlocks=10):
     L = len(frame)
     subWinLength = int(numpy.floor(L / numOfShortBlocks))
     if L != subWinLength * numOfShortBlocks:
-            frame = frame[0:subWinLength * numOfShortBlocks]
+        frame = frame[:subWinLength * numOfShortBlocks]
     # subWindows is of size [numOfShortBlocks x L]
     subWindows = frame.reshape(subWinLength, numOfShortBlocks, order='F').copy()
 
     # Compute normalized sub-frame energies:
     s = numpy.sum(subWindows ** 2, axis=0) / (Eol + eps)
 
-    # Compute entropy of the normalized sub-frame energies:
-    Entropy = -numpy.sum(s * numpy.log2(s + eps))
-    return Entropy
+    return -numpy.sum(s * numpy.log2(s + eps))
 
 def stHarmonic(frame, fs):
     """
@@ -236,10 +225,7 @@ def stHarmonic(frame, fs):
     # estimate m0 (as the first zero crossing of R)
     [a, ] = numpy.nonzero(numpy.diff(numpy.sign(R)))
 
-    if len(a) == 0:
-        m0 = len(R)-1
-    else:
-        m0 = a[0]
+    m0 = len(R)-1 if len(a) == 0 else a[0]
     if M > len(R):
         M = len(R) - 1
 
@@ -286,11 +272,7 @@ def zero_crossings(y, threshold=1e-10, ref_magnitude=None, pad=True, zero_pos=Tr
         y[np.abs(y) <= threshold] = 0
 
     # Extract the sign bit
-    if zero_pos:
-        y_sign = np.signbit(y)
-    else:
-        y_sign = np.sign(y)
-
+    y_sign = np.signbit(y) if zero_pos else np.sign(y)
     # Find the change-points by slicing
     slice_pre = [slice(None)] * y.ndim
     slice_pre[axis] = slice(1, None)
@@ -312,7 +294,7 @@ def zero_crossing_rate(y, win_length=400, hop_length=160):
 def _autocorrelation(x):
     x = x-np.mean(x)
     correlation = np.correlate(x,x,mode='ful')/np.sum(x**2)
-    return correlation[int(len(correlation)/2):]
+    return correlation[len(correlation) // 2:]
 
 def HNR(x,pitch):
     '''this fuction is to caculate harmonics-to-noise ratio,using the autocorrelation function.

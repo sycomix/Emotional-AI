@@ -113,15 +113,15 @@ def compile_gradient_function(input_model, category_index, layer_name):
     loss = K.sum(model.layers[-1].output)
     conv_output = model.layers[0].get_layer(layer_name).output
     gradients = normalize(K.gradients(loss, conv_output)[0])
-    gradient_function = K.function([model.layers[0].input, K.learning_phase()],
-                                                    [conv_output, gradients])
-    return gradient_function
+    return K.function(
+        [model.layers[0].input, K.learning_phase()], [conv_output, gradients]
+    )
 
 def calculate_gradient_weighted_CAM(gradient_function, image):
     output, evaluated_gradients = gradient_function([image, False])
     output, evaluated_gradients = output[0, :], evaluated_gradients[0, :, :, :]
     weights = np.mean(evaluated_gradients, axis = (0, 1))
-    CAM = np.ones(output.shape[0 : 2], dtype=np.float32)
+    CAM = np.ones(output.shape[:2], dtype=np.float32)
     for weight_arg, weight in enumerate(weights):
         CAM = CAM + (weight * output[:, :, weight_arg])
     CAM = cv2.resize(CAM, (64, 64))

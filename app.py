@@ -46,8 +46,7 @@ graph = tf.get_default_graph()
 def data_uri_to_cv2_img(uri):
     encoded_data = uri.split(',')[1]
     nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
-    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    return img
+    return cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
 def emotion_face(bgr_image_base64):
     bgr_image = data_uri_to_cv2_img(bgr_image_base64)

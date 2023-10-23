@@ -81,9 +81,7 @@ def display_image(face, class_vector=None,
     if class_vector is not None and class_decoder is None:
         raise Exception('Provide class decoder')
     face = np.squeeze(face)
-    color_map = None
-    if len(face.shape) < 3:
-        color_map = 'gray'
+    color_map = 'gray' if len(face.shape) < 3 else None
     plt.figure()
     if class_vector is not None:
         class_arg = np.argmax(class_vector)

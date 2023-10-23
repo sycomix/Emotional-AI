@@ -32,14 +32,13 @@ import speech_recognition as sr
 import pyttsx3
 tf.keras.backend.clear_session()
 print("IMPORTED")
-CHUNK = 1024 
+CHUNK = 1024
 FORMAT = pyaudio.paInt16 #paInt8
-CHANNELS = 2 
+CHANNELS = 2
 RATE = 44100 #sample rate
 RECORD_SECONDS = 10
-json_file = open('model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
+with open('model.json', 'r') as json_file:
+    loaded_model_json = json_file.read()
 loaded_model = model_from_json(loaded_model_json)
 loaded_model.load_weights("saved_models/Emotion_Voice_Detection_Model.h5")
 print("Loaded model from disk")
@@ -90,12 +89,11 @@ def hello():
 
 @app.route('/voice', methods=['POST'])
 def voice():
-	print("VOICE")
-	byte = base64.b64decode(request.form["data"].split(",")[1])
-	newFile = open("output.wav", "wb")
-	newFile.write(byte)
-	newFile.close()
-	return emotion_voice()
+    print("VOICE")
+    byte = base64.b64decode(request.form["data"].split(",")[1])
+    with open("output.wav", "wb") as newFile:
+        newFile.write(byte)
+    return emotion_voice()
 
 @app.route('/speech', methods=['GET'])
 def speech():
@@ -105,7 +103,7 @@ def speech():
 @app.route('/say', methods=['POST'])
 def say():
     print("SAY")
-    print(str(request.form["data"]))
+    print(request.form["data"])
     say2(str(request.form["data"]))
     return ""
 

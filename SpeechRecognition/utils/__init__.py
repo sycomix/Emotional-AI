@@ -23,7 +23,7 @@ import librosa.filters
 
 def makedirs(path):
     if not os.path.exists(path):
-        print(" [*] Make directories : {}".format(path))
+        print(f" [*] Make directories : {path}")
         os.makedirs(path)
 
 def normalize_Zscore(X_train, X_test):
@@ -46,14 +46,12 @@ def normalize_MinMax(X_train, X_test):
 
 def preproc(unclean_batch_x):
     """Convert values to range 0-1"""
-    temp_batch = unclean_batch_x / unclean_batch_x.max()
-    return temp_batch
+    return unclean_batch_x / unclean_batch_x.max()
     
 def dense_to_one_hot(labels_dense, num_classes=4):
     """Convert class labels from scalars to one-hot vectors"""
     c=np.max(labels_dense)+1
-    labels_one_hot=np.eye(c)[labels_dense]
-    return labels_one_hot
+    return np.eye(c)[labels_dense]
 
 def batch_creator(batch_size, X_train, y_train,dim_input,n_classes):
     """Create batch with random samples and return appropriate format"""

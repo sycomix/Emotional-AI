@@ -47,10 +47,10 @@ class DataManager(object):
         mask = np.logical_and(mask, unknown_gender_mask)
         image_names_array = image_names_array[mask]
         gender_classes = gender_classes[mask].tolist()
-        image_names = []
-        for image_name_arg in range(image_names_array.shape[0]):
-            image_name = image_names_array[image_name_arg][0]
-            image_names.append(image_name)
+        image_names = [
+            image_names_array[image_name_arg][0]
+            for image_name_arg in range(image_names_array.shape[0])
+        ]
         return dict(zip(image_names, gender_classes))
 
     def _load_fer2013(self):
@@ -74,10 +74,11 @@ class DataManager(object):
 
         file_paths = []
         for folder, subfolders, filenames in os.walk(self.dataset_path):
-            for filename in filenames:
-                if filename.lower().endswith(('.jpg')):
-                    file_paths.append(os.path.join(folder, filename))
-
+            file_paths.extend(
+                os.path.join(folder, filename)
+                for filename in filenames
+                if filename.lower().endswith(('.jpg'))
+            )
         num_faces = len(file_paths)
         y_size, x_size = self.image_size
         faces = np.zeros(shape=(num_faces, y_size, x_size))
